@@ -1,0 +1,22 @@
+id: silver_to_bq
+namespace: zoomcamp
+
+tasks:
+  - id: create_bigquery_external_tables
+    type: io.kestra.plugin.gcp.bigquery.Query
+    projectId: "{{ kv('GCP_PROJECT_ID') }}"
+    serviceAccount: "{{ secret('GCP_SERVICE_ACCOUNT') }}"
+    sql: |
+      {% set tables = [
+          "campaign_desc", "campaign_table", "causal_data",
+          "coupon", "coupon_redempt", "hh_demographic",
+          "product", "transaction_data"
+      ] %}
+
+      {% for table in tables %}
+      CREATE OR REPLACE EXTERNAL TABLE `{{ kv('GCP_PROJECT_ID') }}.{{ kv('GCP_DATASET_STAGING') }}.ext_{{ table }}`
+      OPTIONS (
+          format = 'PARQUET',
+          uris = ['gs://{{ kv('GCP_BUCKET_NAME') }}/silver/{{ table }}/*.parquet']
+      );
+      {% endfor %}

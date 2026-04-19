@@ -1,0 +1,39 @@
+id: gcp_kv
+namespace: zoomcamp
+
+tasks:
+  - id: gcp_project_id
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_PROJECT_ID
+    kvType: STRING
+    value: "zoomcamp-486316"
+
+  - id: gcp_location
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_LOCATION
+    kvType: STRING
+    value: "us-central1"
+
+  - id: gcp_bucket_name
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_BUCKET_NAME
+    kvType: STRING
+    value: "dunnhumby-retail-lake-486316"
+
+  - id: gcp_dataset_staging
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_DATASET_STAGING
+    kvType: STRING
+    value: "staging"
+
+  - id: gcp_dataset_intermediate
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_DATASET_INTERMEDIATE
+    kvType: STRING
+    value: "intermediate"
+
+  - id: gcp_dataset_marts
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_DATASET_MARTS
+    kvType: STRING
+    value: "marts"

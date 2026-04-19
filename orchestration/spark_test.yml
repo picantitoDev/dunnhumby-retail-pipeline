@@ -1,0 +1,77 @@
+id: spark_test
+namespace: zoomcamp
+
+tasks:
+  - id: run_spark_silver
+    type: io.kestra.plugin.scripts.python.Script
+    containerImage: python:3.11-slim
+
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      user: "root"
+      memory:
+        memory: "8GB"
+        memoryReservation: "6GB"
+        memorySwap: "8GB"
+
+    env:
+      GCP_BUCKET: "{{ kv('GCP_BUCKET_NAME') }}"
+      JAVA_HOME: /usr/lib/jvm/default-java
+      GOOGLE_APPLICATION_CREDENTIALS: "gcp-key.json"
+
+    inputFiles:
+      gcp-key.json: "{{ secret('GCP_SERVICE_ACCOUNT') }}"
+
+    beforeCommands:
+      - apt-get update
+      - apt-get install -y default-jdk
+      - pip install pyspark google-cloud-storage
+
+    script: |
+      import os
+      from pyspark.sql import SparkSession
+      from pyspark.sql import functions as F
+
+      key_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+
+      # Configuración de Spark - Alineación corregida
+      spark = SparkSession.builder \
+          .appName('Dunnhumby-Silver-Processing') \
+          .config("spark.jars.packages", "com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.15") \
+          .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem") \
+          .config("spark.hadoop.fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS") \
+          .config("spark.hadoop.google.cloud.auth.service.account.enable", "true") \
+          .config("spark.hadoop.google.cloud.auth.service.account.json.keyfile", key_path) \
+          .config("spark.driver.memory", "6g") \
+          .config("spark.executor.memory", "6g") \
+          .config("spark.sql.shuffle.partitions", "4") \
+          .getOrCreate()
+
+      print(f"--- Spark iniciado con 6GB de RAM ---")
+
+      tables = [
+          "campaign_desc", "campaign_table", "causal_data",
+          "coupon", "coupon_redempt", "hh_demographic",
+          "product", "transaction_data"
+      ]
+
+      bucket = os.environ['GCP_BUCKET']
+
+      for table in tables:
+          try:
+              print(f"--- Procesando tabla: {table} ---")
+              input_path = f"gs://{bucket}/raw/{table}.csv"
+              output_path = f"gs://{bucket}/silver/{table}"
+
+              df = spark.read.option("header", "true").option("inferSchema", "true").csv(input_path)
+              df_clean = df.dropna(how='all').dropDuplicates()
+              df_clean.write.mode("overwrite").parquet(output_path)
+
+              print(f"✅ Tabla {table} completada.")
+              spark.catalog.clearCache()
+
+          except Exception as e:
+              print(f"❌ Error en tabla {table}: {str(e)}")
+
+      spark.stop()
+      print("--- Proceso finalizado exitosamente ---")

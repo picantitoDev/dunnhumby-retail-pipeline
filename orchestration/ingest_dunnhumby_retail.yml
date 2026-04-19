@@ -1,0 +1,48 @@
+id: ingest_dunnhumby_retail
+namespace: zoomcamp
+
+description: |
+  Descarga el dataset Dunnhumby usando el secreto codificado
+  GCP_SERVICE_ACCOUNT generado por el script de bash.
+
+variables:
+  bucket: "{{ kv('GCP_BUCKET_NAME') }}"
+  tables:
+    - campaign_desc
+    - campaign_table
+    - causal_data
+    - coupon
+    - coupon_redempt
+    - hh_demographic
+    - product
+    - transaction_data
+
+tasks:
+  - id: extract
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    containerImage: python:3.11-slim
+    outputFiles:
+      - "*.csv"
+    commands:
+      - apt-get update && apt-get install -y wget unzip
+      - wget -O dunnhumby.zip https://www.kaggle.com/api/v1/datasets/download/frtgnn/dunnhumby-the-complete-journey
+      - unzip dunnhumby.zip
+      - ls -lah
+
+  - id: upload_to_gcs
+    type: io.kestra.plugin.core.flow.ForEach
+    values: "{{ vars.tables }}"
+    tasks:
+      - id: upload
+        type: io.kestra.plugin.gcp.gcs.Upload
+        from: "{{ outputs.extract.outputFiles[taskrun.value ~ '.csv'] }}"
+        to: "gs://{{ vars.bucket }}/raw/{{ taskrun.value }}.csv"
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{ secret('GCP_SERVICE_ACCOUNT') }}"
+      projectId: "{{ kv('GCP_PROJECT_ID') }}"
+      location: "{{ kv('GCP_LOCATION') }}"
