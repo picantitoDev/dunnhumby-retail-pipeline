@@ -12,7 +12,7 @@
 3. [Architecture Overview](#-architecture-overview)
 4. [Project Structure](#-project-structure)
 5. [Technology Stack](#-technology-stack)
-6. [Reproducibility](#-reproducibility)
+6. [Reproducibility](#-reproducibility-setup--run)
 7. [Storage and Modeling Results](#-storage-and-modeling-results)
 8. [Orchestration Flows (Kestra)](#-orchestration-flows-kestra)
 9. [Transformation & Optimization (dbt)](#-transformation--optimization-dbt)
