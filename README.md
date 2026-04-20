@@ -321,11 +321,11 @@ Once the containers are running:
 ## 🗄️ Storage and Modeling Results
 By utilizing PySpark for data cleansing, the raw datasets were successfully transformed into partitioned Parquet files within the Data Lake:
 
- ![GCS Data Lake Bronze/Silver Structure](docs/images/gcs_buckets.png)
+ ![GCS Data Lake Bronze/Silver Structure](docs/images/buckets.png)
 
 Subsequently, dbt was used to orchestrate the modeling process within BigQuery, building out the star schema across staging, intermediate, and analytical (marts) datasets:
 
-![BigQuery dbt Models](docs/images/transformed_datasets.png)
+![BigQuery dbt Models](docs/images/datasets.png)
 
 ## 🧩 Orchestration Flows (Kestra)
 
