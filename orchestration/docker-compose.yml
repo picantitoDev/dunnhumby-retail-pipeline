@@ -12,7 +12,7 @@ services:
     environment:
       POSTGRES_DB: kestra
       POSTGRES_USER: kestra
-      POSTGRES_PASSWORD: ${KESTRA_POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: k3str4
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 30s
@@ -50,7 +50,7 @@ services:
             url: jdbc:postgresql://kestra_postgres:5432/kestra
             driverClassName: org.postgresql.Driver
             username: kestra
-            password: "${KESTRA_POSTGRES_PASSWORD}"
+            password: k3str4
         kestra:
           tutorial-flows:
             enabled: false

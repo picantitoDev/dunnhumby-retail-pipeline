@@ -18,8 +18,6 @@ tasks:
 
     commands:
       - |
-        set -euo pipefail
-
         echo "--- Cloning repository ---"
         rm -rf repo
         git clone https://github.com/picantitoDev/COVID-Mobility-Patterns.git repo
