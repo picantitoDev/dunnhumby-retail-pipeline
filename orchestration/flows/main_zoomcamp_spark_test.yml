@@ -89,7 +89,7 @@ tasks:
           try:
               print(f"--- Processing table: {table} ---")
 
-              input_path = f"gs://{bucket}/raw/{table}.csv"
+              input_path = f"gs://{bucket}/bronze/{table}.csv"
               output_path = f"gs://{bucket}/silver/{table}"
 
               df = (
