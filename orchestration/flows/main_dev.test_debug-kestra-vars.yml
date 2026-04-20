@@ -1,8 +1,0 @@
-id: debug-kestra-vars
-namespace: dev.test
-
-tasks:
-  - id: test
-    type: io.kestra.plugin.core.log.Log
-    message: |
-      KESTRA_GCP_PROJECT_ID={{ envs.kestra_gcp_project_id }}
